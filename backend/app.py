@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 CORS(app)
@@ -36,7 +37,20 @@ def get_products():
         'price': product.price
     } for product in products])
 
+def delete_old_products():
+    products = Product.query.order_by(Product.id.desc()).all()
+    if len(products) > 3:
+        for product in products[3:]:
+            db.session.delete(product)
+        db.session.commit()
+        print("Old products deleted")
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+    
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=delete_old_products, trigger="interval", minutes=15)
+    scheduler.start()
+    
     app.run(host='0.0.0.0', port=5000, debug=False)
