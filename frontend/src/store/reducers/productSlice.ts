@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const BASE_URL = 'https://cadastrar-produtos.onrender.com';
+
 interface Product {
   id: number;
   name: string;
@@ -22,12 +24,12 @@ const initialState: ProductState = {
 };
 
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-  const response = await axios.get('http://127.0.0.1:5000/products');
+  const response = await axios.get(`${BASE_URL}/products`);
   return response.data;
 });
 
 export const addProduct = createAsyncThunk('products/addProduct', async (product: Omit<Product, 'id'>) => {
-  const response = await axios.post('http://127.0.0.1:5000/products', product);
+  const response = await axios.post(`${BASE_URL}/products`, product);
   return response.data;
 });
 
